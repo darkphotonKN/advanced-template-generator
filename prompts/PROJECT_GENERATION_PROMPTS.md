@@ -26,6 +26,7 @@ Guidelines:
 - Will become your directory name and module path
 
 Example: "inventory-system", "blog-api", "task-manager"
+Note: Project will be created at ../{project-name}/ relative to generator directory
 
 Your project name:
 ```

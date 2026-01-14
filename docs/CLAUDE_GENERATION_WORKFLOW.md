@@ -5,9 +5,11 @@ This document provides step-by-step instructions for Claude to help users genera
 ## Pre-Generation Setup
 
 Before starting any generation, Claude should:
-1. Verify the template structure exists at `templates/ddd-api/`
-2. Check that `generator/config.yaml` contains the permanent settings
-3. Load the current project registry from `~/.go-gen-projects.json` if it exists
+1. **Start in root directory** `/go-template-generator/` where CLAUDE.md is located
+2. **Navigate to generator**: `cd generator`
+3. Verify the template structure exists at `templates/ddd-api/`
+4. Check that `config.yaml` contains the permanent settings including `output_location: "../"`
+5. Load the current project registry from `~/.go-gen-projects.json` if it exists
 
 ## Interactive Generation Workflow
 
@@ -64,8 +66,9 @@ Does this look correct? (yes/no)
 
 1. **Copy Template Structure**
    ```bash
-   cp -r templates/ddd-api/ {project-name}/
-   cd {project-name}/
+   # From generator/ directory, copy to sibling location
+   cp -r templates/ddd-api/ ../{project-name}/
+   cd ../{project-name}/
    ```
 
 2. **Calculate Ports** (using randomization logic from config.yaml)

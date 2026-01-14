@@ -23,6 +23,9 @@ defaults:
   include_s3: false             # S3 upload disabled by default
   primary_entity: "item"        # Default entity if not specified
 
+# Output location for generated projects (relative to generator directory)
+output_location: "../"              # Creates projects as siblings to go-template-generator
+
 # Track generated projects to manage port allocation
 projects_registry: "~/.go-gen-projects.json"
 
