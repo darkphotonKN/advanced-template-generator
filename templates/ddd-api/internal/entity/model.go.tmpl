@@ -1,0 +1,36 @@
+package {{.PrimaryEntity}}
+
+import (
+	"time"
+
+	"github.com/google/uuid"
+)
+
+type {{.EntityCapitalized}} struct {
+	ID          uuid.UUID `json:"id" db:"id"`
+	Name        string    `json:"name" db:"name"`
+	Description string    `json:"description" db:"description"`
+	{{if .IncludeS3}}ImageURL    string    `json:"image_url,omitempty" db:"image_url"`
+	ImageKey    string    `json:"image_key,omitempty" db:"image_key"`{{end}}
+	CreatedAt   time.Time `json:"created_at" db:"created_at"`
+	UpdatedAt   time.Time `json:"updated_at" db:"updated_at"`
+}
+
+type Create{{.EntityCapitalized}}Request struct {
+	Name        string `json:"name" binding:"required"`
+	Description string `json:"description"`
+	{{if .IncludeS3}}ImageURL    string `json:"image_url,omitempty"`{{end}}
+}
+
+type Update{{.EntityCapitalized}}Request struct {
+	Name        string `json:"name,omitempty"`
+	Description string `json:"description,omitempty"`
+	{{if .IncludeS3}}ImageURL    string `json:"image_url,omitempty"`{{end}}
+}
+
+type List{{.EntityPlural}}Response struct {
+	{{.EntityPlural}} []*{{.EntityCapitalized}} `json:"{{.EntityPlural}}"`
+	Total    int64 `json:"total"`
+	Limit    int   `json:"limit"`
+	Offset   int   `json:"offset"`
+}

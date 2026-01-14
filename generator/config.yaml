@@ -1,0 +1,51 @@
+# Permanent configuration for all generated projects
+database:
+  user: "user"                   # Always use "user"
+  password: "password"           # Always use "password"
+  name_pattern: "{project}_db"  # Pattern: myapp_db, inventory_db, etc.
+
+ports:
+  base_api: 8000
+  base_db: 5432
+  base_redis: 6379
+  increment: 10                 # Base increment per project index
+  randomization:
+    enabled: true
+    range: 50                   # Random offset: -50 to +50 from calculated port
+    # This means ports will vary within:
+    # API: 8000±50, 8010±50, 8020±50, etc.
+    # Keeps ports dynamic but within safe ranges
+
+defaults:
+  module_prefix: "github.com/kranti/"
+  include_auth: true            # Include JWT auth by default
+  include_redis: true           # Include Redis cache by default
+  include_s3: false             # S3 upload disabled by default
+  primary_entity: "item"        # Default entity if not specified
+
+# Track generated projects to manage port allocation
+projects_registry: "~/.go-gen-projects.json"
+
+# Git settings
+git:
+  initial_commit_message: "initial commit"
+
+# Template features (can be overridden via CLI flags)
+features:
+  auth:
+    enabled: true
+    description: "JWT authentication middleware"
+    # Use --no-auth flag to disable
+  s3:
+    enabled: false
+    description: "S3 file upload support"
+    # Use --with-s3 flag to enable
+    # When enabled, includes:
+    #   - S3 service in internal/s3/
+    #   - Image upload endpoints
+    #   - Presigned URL generation
+    #   - S3 environment variables
+  redis:
+    enabled: true
+    description: "Redis caching"
+    # Always included for DDD API template

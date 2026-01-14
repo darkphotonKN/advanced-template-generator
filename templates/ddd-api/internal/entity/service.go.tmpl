@@ -1,0 +1,170 @@
+package {{.PrimaryEntity}}
+
+import (
+	"context"
+	"fmt"
+	"log/slog"
+
+	"github.com/google/uuid"
+	{{if .IncludeS3}}"{{.ModuleName}}/internal/s3"{{end}}
+)
+
+type service struct {
+	repo   Repository
+	{{if .IncludeS3}}s3Service s3.Service{{end}}
+	logger *slog.Logger
+}
+
+type Repository interface {
+	Create(ctx context.Context, item *{{.EntityCapitalized}}) error
+	List(ctx context.Context, limit, offset int) ([]*{{.EntityCapitalized}}, int64, error)
+	GetByID(ctx context.Context, id uuid.UUID) (*{{.EntityCapitalized}}, error)
+	Update(ctx context.Context, id uuid.UUID, item *{{.EntityCapitalized}}) error
+	Delete(ctx context.Context, id uuid.UUID) error
+}
+
+func NewService(repo Repository, {{if .IncludeS3}}s3Service s3.Service, {{end}}logger *slog.Logger) *service {
+	return &service{
+		repo:   repo,
+		{{if .IncludeS3}}s3Service: s3Service,{{end}}
+		logger: logger,
+	}
+}
+
+func (s *service) Create{{.EntityCapitalized}}(ctx context.Context, req Create{{.EntityCapitalized}}Request) (*{{.EntityCapitalized}}, error) {
+	item := &{{.EntityCapitalized}}{
+		ID:          uuid.New(),
+		Name:        req.Name,
+		Description: req.Description,
+		{{if .IncludeS3}}ImageKey:    req.ImageURL,{{end}}
+	}
+
+	if err := s.repo.Create(ctx, item); err != nil {
+		s.logger.Error("failed to create {{.PrimaryEntity}}", slog.String("error", err.Error()))
+		return nil, fmt.Errorf("failed to create {{.PrimaryEntity}}: %w", err)
+	}
+
+	{{if .IncludeS3}}// Generate presigned URL if image exists
+	if item.ImageKey != "" {
+		url, err := s.s3Service.GetPresignedURL(ctx, item.ImageKey)
+		if err != nil {
+			s.logger.Error("failed to generate presigned URL", slog.String("error", err.Error()))
+		} else {
+			item.ImageURL = url
+		}
+	}{{end}}
+
+	return item, nil
+}
+
+func (s *service) List{{.EntityPlural}}(ctx context.Context, limit, offset int) ([]*{{.EntityCapitalized}}, int64, error) {
+	items, total, err := s.repo.List(ctx, limit, offset)
+	if err != nil {
+		s.logger.Error("failed to list {{.EntityPlural}}", slog.String("error", err.Error()))
+		return nil, 0, fmt.Errorf("failed to list {{.EntityPlural}}: %w", err)
+	}
+
+	{{if .IncludeS3}}// Generate presigned URLs for images
+	for _, item := range items {
+		if item.ImageKey != "" {
+			url, err := s.s3Service.GetPresignedURL(ctx, item.ImageKey)
+			if err != nil {
+				s.logger.Error("failed to generate presigned URL",
+					slog.String("error", err.Error()),
+					slog.String("key", item.ImageKey))
+			} else {
+				item.ImageURL = url
+			}
+		}
+	}{{end}}
+
+	return items, total, nil
+}
+
+func (s *service) Get{{.EntityCapitalized}}(ctx context.Context, id uuid.UUID) (*{{.EntityCapitalized}}, error) {
+	item, err := s.repo.GetByID(ctx, id)
+	if err != nil {
+		s.logger.Error("failed to get {{.PrimaryEntity}}",
+			slog.String("error", err.Error()),
+			slog.String("id", id.String()))
+		return nil, fmt.Errorf("failed to get {{.PrimaryEntity}}: %w", err)
+	}
+
+	{{if .IncludeS3}}// Generate presigned URL if image exists
+	if item.ImageKey != "" {
+		url, err := s.s3Service.GetPresignedURL(ctx, item.ImageKey)
+		if err != nil {
+			s.logger.Error("failed to generate presigned URL", slog.String("error", err.Error()))
+		} else {
+			item.ImageURL = url
+		}
+	}{{end}}
+
+	return item, nil
+}
+
+func (s *service) Update{{.EntityCapitalized}}(ctx context.Context, id uuid.UUID, req Update{{.EntityCapitalized}}Request) (*{{.EntityCapitalized}}, error) {
+	// Get existing item
+	item, err := s.repo.GetByID(ctx, id)
+	if err != nil {
+		return nil, fmt.Errorf("failed to find {{.PrimaryEntity}}: %w", err)
+	}
+
+	// Update fields
+	if req.Name != "" {
+		item.Name = req.Name
+	}
+	if req.Description != "" {
+		item.Description = req.Description
+	}
+	{{if .IncludeS3}}if req.ImageURL != "" {
+		item.ImageKey = req.ImageURL
+	}{{end}}
+
+	// Save updates
+	if err := s.repo.Update(ctx, id, item); err != nil {
+		s.logger.Error("failed to update {{.PrimaryEntity}}",
+			slog.String("error", err.Error()),
+			slog.String("id", id.String()))
+		return nil, fmt.Errorf("failed to update {{.PrimaryEntity}}: %w", err)
+	}
+
+	{{if .IncludeS3}}// Generate presigned URL if image exists
+	if item.ImageKey != "" {
+		url, err := s.s3Service.GetPresignedURL(ctx, item.ImageKey)
+		if err != nil {
+			s.logger.Error("failed to generate presigned URL", slog.String("error", err.Error()))
+		} else {
+			item.ImageURL = url
+		}
+	}{{end}}
+
+	return item, nil
+}
+
+func (s *service) Delete{{.EntityCapitalized}}(ctx context.Context, id uuid.UUID) error {
+	{{if .IncludeS3}}// Get item to check for image
+	item, err := s.repo.GetByID(ctx, id)
+	if err != nil {
+		return fmt.Errorf("failed to find {{.PrimaryEntity}}: %w", err)
+	}
+
+	// Delete image from S3 if exists
+	if item.ImageKey != "" {
+		if err := s.s3Service.DeleteFile(ctx, item.ImageKey); err != nil {
+			s.logger.Error("failed to delete image from S3",
+				slog.String("error", err.Error()),
+				slog.String("key", item.ImageKey))
+			// Continue with deletion even if S3 delete fails
+		}
+	}{{end}}
+
+	if err := s.repo.Delete(ctx, id); err != nil {
+		s.logger.Error("failed to delete {{.PrimaryEntity}}",
+			slog.String("error", err.Error()),
+			slog.String("id", id.String()))
+		return fmt.Errorf("failed to delete {{.PrimaryEntity}}: %w", err)
+	}
+
+	return nil
+}

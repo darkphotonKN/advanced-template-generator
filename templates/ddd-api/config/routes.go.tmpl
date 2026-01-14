@@ -1,0 +1,69 @@
+package config
+
+import (
+	"database/sql"
+	"log/slog"
+
+	"github.com/gin-contrib/cors"
+	"github.com/gin-gonic/gin"
+	"{{.ModuleName}}/internal/{{.PrimaryEntity}}"
+	"{{.ModuleName}}/internal/middleware"
+	{{if .IncludeS3}}"{{.ModuleName}}/internal/s3"{{end}}
+)
+
+func SetupRoutes(db *sql.DB, {{if .IncludeS3}}s3Service s3.Service, {{end}}logger *slog.Logger) *gin.Engine {
+	// Set Gin to release mode in production
+	gin.SetMode(gin.ReleaseMode)
+
+	router := gin.New()
+
+	// Add middleware
+	router.Use(middleware.RequestID())
+	router.Use(middleware.RequestLogger(logger))
+	router.Use(middleware.StructuredLogger(logger))
+	router.Use(corsMiddleware())
+
+	// Initialize services
+	repo := {{.PrimaryEntity}}.NewRepository(db)
+	service := {{.PrimaryEntity}}.NewService(repo, {{if .IncludeS3}}s3Service, {{end}}logger)
+	handler := {{.PrimaryEntity}}.NewHandler(service, logger)
+
+	// Health check
+	router.GET("/health", func(c *gin.Context) {
+		c.JSON(200, gin.H{"status": "ok"})
+	})
+
+	// API routes
+	api := router.Group("/api")
+	{{if .IncludeAuth}}
+	// Public routes (before auth middleware)
+	public := api.Group("/public")
+	{
+		// Add any public endpoints here
+	}
+
+	// Apply auth middleware to protected routes
+	api.Use(middleware.AuthMiddleware())
+	{{end}}
+	{
+		// {{.EntityCapitalized}} endpoints
+		items := api.Group("/{{.EntityPlural}}")
+		{
+			items.POST("", handler.Create{{.EntityCapitalized}})
+			items.GET("", handler.List{{.EntityPlural}})
+			items.GET("/:id", handler.Get{{.EntityCapitalized}})
+			items.PUT("/:id", handler.Update{{.EntityCapitalized}})
+			items.DELETE("/:id", handler.Delete{{.EntityCapitalized}})
+		}
+	}
+
+	return router
+}
+
+func corsMiddleware() gin.HandlerFunc {
+	config := cors.DefaultConfig()
+	config.AllowOrigins = []string{"*"}
+	config.AllowMethods = []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"}
+	config.AllowHeaders = []string{"Content-Type", "Authorization"}
+	return cors.New(config)
+}
