@@ -77,29 +77,28 @@ Does this look correct? (yes/no)
    - Apply random offset ±50 for each service
    - Ensure ports are within 1024-65535 range
 
-3. **Process Template Variables**
-   Replace these variables in all `.tmpl` files:
+3. **Process Configuration Files Only**
+   Replace variables in the 3 `.tmpl` files:
+   - `docker-compose.yml.tmpl` → `docker-compose.yml`
+   - `.env.example.tmpl` → `.env.example`
+   - `go.mod.tmpl` (if exists) → Update module name in `go.mod`
+
+   Variables to replace:
    ```
    {{.ProjectName}} → project-name
    {{.ModuleName}} → github.com/kranti/project-name
-   {{.PrimaryEntity}} → entity
-   {{.EntityCapitalized}} → Entity
-   {{.EntityPlural}} → entities
    {{.APIPort}} → calculated_api_port
    {{.DBPort}} → calculated_db_port
    {{.RedisPort}} → calculated_redis_port
    {{.DBName}} → project_name_db
    {{.DBUser}} → user
    {{.DBPassword}} → password
-   {{.IncludeAuth}} → true/false
-   {{.IncludeS3}} → true/false
-   {{.ProjectDescription}} → user_provided_description
    ```
 
-4. **Rename and Clean Files**
-   - Remove `.tmpl` extensions from all template files
-   - Rename `internal/entity/` to `internal/{entity}/`
-   - Process conditional includes (remove auth middleware if --no-auth)
+4. **Update Go Module**
+   - Update module name in `go.mod`
+   - Update all import paths to use new module name
+   - The template uses "item" as the example entity - users can refactor later if needed
 
 5. **Initialize Project**
    ```bash

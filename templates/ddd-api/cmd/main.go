@@ -11,8 +11,7 @@ import (
 	"time"
 
 	"github.com/joho/godotenv"
-	"{{.ModuleName}}/config"
-	{{if .IncludeS3}}"{{.ModuleName}}/internal/s3"{{end}}
+	"github.com/darkphotonKN/go-template-generator/config"
 )
 
 func main() {
@@ -34,24 +33,11 @@ func main() {
 	}
 	defer db.Close()
 
-	{{if .IncludeS3}}s3Config, err := s3.NewConfig()
-	if err != nil {
-		logger.Error("failed to load S3 config", slog.String("error", err.Error()))
-		os.Exit(1)
-	}
-
-	s3Service, err := s3.NewService(s3Config)
-	if err != nil {
-		logger.Error("failed to create S3 service", slog.String("error", err.Error()))
-		os.Exit(1)
-	}
-
-	router := config.SetupRoutes(db, s3Service, logger)
-	{{else}}router := config.SetupRoutes(db, logger){{end}}
+	router := config.SetupRoutes(db, logger)
 
 	port := os.Getenv("PORT")
 	if port == "" {
-		port = "{{.APIPort}}"
+		port = "8080"
 	}
 
 	srv := &http.Server{

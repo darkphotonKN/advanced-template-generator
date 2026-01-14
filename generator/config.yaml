@@ -1,54 +1,100 @@
-# Permanent configuration for all generated projects
+# ==========================================
+# GENERATOR CONFIGURATION
+# ==========================================
+# This file contains PERMANENT settings that apply to ALL generated projects.
+# Users should modify this ONCE to match their environment.
+# Claude will still prompt for per-project settings (name, entity, auth, etc.)
+
+# DATABASE CONFIGURATION
+# These credentials will be used for ALL generated projects
 database:
-  user: "user"                   # Always use "user"
-  password: "password"           # Always use "password"
-  name_pattern: "{project}_db"  # Pattern: myapp_db, inventory_db, etc.
+  user: "user"                   # PostgreSQL username (update if needed)
+  password: "password"           # PostgreSQL password (update if needed)
+  name_pattern: "{project}_db"  # Database naming: todo_app_db, blog_db, etc.
 
+# PORT ALLOCATION STRATEGY
+# Each project gets unique ports to avoid conflicts
 ports:
-  base_api: 8000
-  base_db: 5432
-  base_redis: 6379
+  base_api: 8000                # Starting port for API servers
+  base_db: 5432                 # Starting port for PostgreSQL
+  base_redis: 6379              # Starting port for Redis
   increment: 10                 # Base increment per project index
+
+  # Port randomization prevents predictable patterns and conflicts
   randomization:
-    enabled: true
+    enabled: true               # Set to false for predictable ports
     range: 50                   # Random offset: -50 to +50 from calculated port
-    # This means ports will vary within:
-    # API: 8000±50, 8010±50, 8020±50, etc.
-    # Keeps ports dynamic but within safe ranges
+    # Example: Project 1 API = 8000 + random(-50 to 50) = 7950-8050
+    # Example: Project 2 API = 8010 + random(-50 to 50) = 7960-8060
 
+# PROJECT DEFAULTS
+# These are DEFAULT values - Claude will still ask users to confirm
 defaults:
-  module_prefix: "github.com/kranti/"
-  include_auth: true            # Include JWT auth by default
-  include_redis: true           # Include Redis cache by default
-  include_s3: false             # S3 upload disabled by default
-  primary_entity: "item"        # Default entity if not specified
+  module_prefix: "github.com/kranti/"  # CHANGE THIS to your GitHub username!
+  include_auth: true            # Default: Include JWT authentication
+  include_redis: true           # Always included (required for DDD template)
+  include_s3: false             # Default: No S3 file uploads
+  primary_entity: "item"        # Fallback entity name (rarely used)
 
-# Output location for generated projects (relative to generator directory)
+# OUTPUT LOCATION
+# Where generated projects are created (relative to generator directory)
 output_location: "../"              # Creates projects as siblings to go-template-generator
+# Example directory structure:
+#   /your-go-projects/
+#   ├── go-template-generator/      # This repository
+#   ├── todo-app/                  # Generated project
+#   └── inventory-api/             # Generated project
 
-# Track generated projects to manage port allocation
+# PROJECT REGISTRY
+# Tracks all generated projects to manage port allocation and prevent conflicts
 projects_registry: "~/.go-gen-projects.json"
+# Delete this file to reset project indexing and port allocation
 
-# Git settings
+# GIT CONFIGURATION
 git:
-  initial_commit_message: "initial commit"
+  initial_commit_message: "initial commit"  # First commit message for generated projects
 
-# Template features (can be overridden via CLI flags)
+# FEATURE FLAGS
+# These are DEFAULT settings - Claude will ask users to confirm each one
 features:
   auth:
-    enabled: true
+    enabled: true               # Default: yes (Claude will still ask)
     description: "JWT authentication middleware"
-    # Use --no-auth flag to disable
+    # When enabled, includes:
+    #   - JWT middleware
+    #   - Login/register endpoints
+    #   - Protected routes
+
   s3:
-    enabled: false
+    enabled: false              # Default: no (Claude will still ask)
     description: "S3 file upload support"
-    # Use --with-s3 flag to enable
     # When enabled, includes:
     #   - S3 service in internal/s3/
     #   - Image upload endpoints
     #   - Presigned URL generation
-    #   - S3 environment variables
+    #   - AWS environment variables
+
   redis:
-    enabled: true
+    enabled: true               # ALWAYS included (required for DDD template)
     description: "Redis caching"
-    # Always included for DDD API template
+    # Never disabled - core requirement for the template
+
+# ==========================================
+# HOW THIS CONFIG WORKS WITH CLAUDE
+# ==========================================
+# 1. These settings apply to ALL projects
+# 2. Claude will still ASK users about auth, S3, etc.
+# 3. The defaults here just set the initial suggestion
+# 4. Users can always override during generation
+#
+# WHAT YOU SHOULD CHANGE:
+# - module_prefix: Set to your GitHub username
+# - database credentials: If using different PostgreSQL setup
+# - port ranges: If defaults conflict with your services
+#
+# WHAT CLAUDE WILL ALWAYS ASK:
+# - Project name
+# - Primary entity
+# - Include authentication? (shows default from here)
+# - Include S3? (shows default from here)
+# - Project description

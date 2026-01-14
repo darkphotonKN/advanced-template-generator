@@ -34,23 +34,22 @@ Default output location is configured in `generator/config.yaml` as `../`
 
 ### 5. Generation Process
 1. Copy templates from `templates/ddd-api/`
-2. Process template variables (ProjectName, Entity, etc.)
-3. Remove .tmpl extensions
-4. Rename entity directories
-5. Initialize Go module and git repository
-6. Update project registry
+2. Process only the 3 configuration template files (.tmpl)
+3. Update module name in go.mod and all imports
+4. Initialize git repository
+5. Update project registry
 
-### 6. Template Variables
-Replace these in all .tmpl files:
-- `{{.ProjectName}}` - User's project name (e.g., "todo-app")
-- `{{.ModuleName}}` - github.com/kranti/{project-name}
-- `{{.PrimaryEntity}}` - User's entity (e.g., "task")
-- `{{.EntityCapitalized}}` - Capitalized entity (e.g., "Task")
-- `{{.EntityPlural}}` - Plural form (e.g., "tasks")
-- `{{.APIPort}}`, `{{.DBPort}}`, `{{.RedisPort}}` - Randomized ports
-- `{{.IncludeAuth}}` - true/false for JWT authentication
-- `{{.IncludeS3}}` - true/false for file uploads
-- `{{.ProjectDescription}}` - User's description
+### 6. Template Information
+The template provides a working example API with:
+- **Example Entity**: "item" - a simple CRUD example
+- **Clean Architecture**: Repository, Service, Handler layers
+- **Error Handling**: Professional error utilities included
+- **No Template Variables in Code**: All Go code is ready to run
+
+Only configuration files need processing:
+- `docker-compose.yml.tmpl` - for port configuration
+- `.env.example.tmpl` - for environment setup
+- Module name updates in go.mod and imports
 
 ## Example User Prompts
 
@@ -69,16 +68,42 @@ Replace these in all .tmpl files:
 
 ## Configuration
 
-**Persistent Settings:** `generator/config.yaml`
-- Database credentials (user/password)
-- Port allocation settings
-- Default output location
-- Template paths
+### What's Preset (You Don't Need to Ask)
+These are configured in `generator/config.yaml` and apply to ALL projects:
+
+**Fixed Settings:**
+- Database credentials: Always `user`/`password`
+- Module prefix: `github.com/kranti/`
+- Output location: `../` (creates sibling directories)
+- Port base values: API 8000, DB 5432, Redis 6379
+- Port randomization: ±50 range for each service
+- Git initialization: Always enabled
+
+**Default Features (but still ask to confirm):**
+- Authentication: `true` by default
+- S3 uploads: `false` by default
+- Redis caching: Always included (never ask)
+
+### What Claude Prompts For (Per Project)
+You MUST gather these for each project:
+
+1. **Project Name** - Required (can infer from request)
+2. **Primary Entity** - Required (must ask if not clear)
+3. **Authentication** - Ask yes/no (default: yes)
+4. **S3 Uploads** - Ask yes/no (default: no)
+5. **Description** - Required for documentation
+
+### How to Modify Defaults
+Users can edit `generator/config.yaml` if they need:
+- Different GitHub username (change `module_prefix`)
+- Different database credentials
+- Different port ranges
+- Different output location
 
 **Project Registry:** `~/.go-gen-projects.json`
-- Tracks all generated projects
-- Manages port allocation
-- Prevents naming conflicts
+- Automatically managed
+- Tracks port allocations
+- Prevents conflicts
 
 ## Documentation Reference
 

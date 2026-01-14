@@ -42,12 +42,27 @@ make docker-up && make migrate-up && make dev
 
 ## Configuration
 
-### Persistent Settings
-Edit `generator/config.yaml` to modify:
-- **Output Location**: `output_location: "../"` (default: creates projects as siblings)
-- **Database Credentials**: Always `user`/`password`
-- **Port Allocation**: Base ports and randomization settings
-- **Default Features**: Auth, S3, Redis configuration
+### Quick Setup
+Most users only need to change one setting in `generator/config.yaml`:
+```yaml
+defaults:
+  module_prefix: "github.com/yourusername/"  # Change to your GitHub username
+```
+
+### What's Preset vs What's Prompted
+
+**Preset in config.yaml (applies to all projects):**
+- Database: `user`/`password` credentials
+- Ports: Base values with ±50 randomization
+- Location: Projects created as siblings (`../`)
+- Module: `github.com/kranti/` prefix
+
+**Claude prompts for (per project):**
+- Project name
+- Primary entity (e.g., task, product, post)
+- Authentication needed? (default: yes)
+- S3 uploads needed? (default: no)
+- Project description
 
 ### Project Location
 By default, projects are generated in the parent directory:
@@ -58,6 +73,13 @@ By default, projects are generated in the parent directory:
 ├── inventory-api/           # Generated project
 └── blog-api/               # Generated project
 ```
+
+### Advanced Configuration
+See [Configuration Guide](docs/CONFIG_GUIDE.md) for detailed options including:
+- Custom port ranges
+- Different database credentials
+- Alternative output locations
+- Feature flag defaults
 
 ## Usage Examples
 
