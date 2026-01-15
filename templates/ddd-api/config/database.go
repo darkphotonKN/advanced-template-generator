@@ -1,15 +1,15 @@
 package config
 
 import (
-	"database/sql"
 	"fmt"
 	"log/slog"
 	"os"
 
+	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
 )
 
-func NewDatabase(logger *slog.Logger) (*sql.DB, error) {
+func NewDatabase(logger *slog.Logger) (*sqlx.DB, error) {
 	host := os.Getenv("DB_HOST")
 	if host == "" {
 		host = "localhost"
@@ -38,13 +38,9 @@ func NewDatabase(logger *slog.Logger) (*sql.DB, error) {
 	dsn := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
 		host, port, user, password, dbname)
 
-	db, err := sql.Open("postgres", dsn)
+	db, err := sqlx.Connect("postgres", dsn)
 	if err != nil {
-		return nil, fmt.Errorf("opening database: %w", err)
-	}
-
-	if err := db.Ping(); err != nil {
-		return nil, fmt.Errorf("pinging database: %w", err)
+		return nil, fmt.Errorf("connecting to database: %w", err)
 	}
 
 	logger.Info("connected to database",

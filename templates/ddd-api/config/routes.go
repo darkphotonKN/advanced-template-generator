@@ -1,16 +1,16 @@
 package config
 
 import (
-	"database/sql"
 	"log/slog"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+	"github.com/jmoiron/sqlx"
 	"github.com/darkphotonKN/go-template-generator/internal/item"
 	"github.com/darkphotonKN/go-template-generator/internal/middleware"
 )
 
-func SetupRoutes(db *sql.DB, logger *slog.Logger) *gin.Engine {
+func SetupRoutes(db *sqlx.DB, logger *slog.Logger) *gin.Engine {
 	// Set Gin to release mode in production
 	gin.SetMode(gin.ReleaseMode)
 

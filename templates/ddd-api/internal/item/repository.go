@@ -2,28 +2,34 @@ package item
 
 import (
 	"context"
-	"database/sql"
 
 	"github.com/darkphotonKN/go-template-generator/internal/utils/errorutils"
 	"github.com/google/uuid"
+	"github.com/jmoiron/sqlx"
 )
 
 type repository struct {
-	db *sql.DB
+	db *sqlx.DB
 }
 
-func NewRepository(db *sql.DB) *repository {
+func NewRepository(db *sqlx.DB) *repository {
 	return &repository{db: db}
 }
 
 func (r *repository) Create(ctx context.Context, item *Item) error {
 	query := `
 		INSERT INTO items (id, name, description, created_at, updated_at)
-		VALUES ($1, $2, $3, NOW(), NOW())
+		VALUES (:id, :name, :description, NOW(), NOW())
 		RETURNING created_at, updated_at
 	`
 
-	err := r.db.QueryRowContext(ctx, query, item.ID, item.Name, item.Description).Scan(&item.CreatedAt, &item.UpdatedAt)
+	stmt, err := r.db.PrepareNamedContext(ctx, query)
+	if err != nil {
+		return errorutils.AnalyzeDBErr(err)
+	}
+	defer stmt.Close()
+
+	err = stmt.GetContext(ctx, item, item)
 	if err != nil {
 		return errorutils.AnalyzeDBErr(err)
 	}
@@ -35,7 +41,7 @@ func (r *repository) List(ctx context.Context, limit, offset int) ([]*Item, int6
 	// Get total count
 	var total int64
 	countQuery := `SELECT COUNT(*) FROM items`
-	err := r.db.QueryRowContext(ctx, countQuery).Scan(&total)
+	err := r.db.GetContext(ctx, &total, countQuery)
 	if err != nil {
 		return nil, 0, errorutils.AnalyzeDBErr(err)
 	}
@@ -48,19 +54,10 @@ func (r *repository) List(ctx context.Context, limit, offset int) ([]*Item, int6
 		LIMIT $1 OFFSET $2
 	`
 
-	rows, err := r.db.QueryContext(ctx, query, limit, offset)
+	var items []*Item
+	err = r.db.SelectContext(ctx, &items, query, limit, offset)
 	if err != nil {
 		return nil, 0, errorutils.AnalyzeDBErr(err)
-	}
-	defer rows.Close()
-
-	var items []*Item
-	for rows.Next() {
-		item := &Item{}
-		if err := rows.Scan(&item.ID, &item.Name, &item.Description, &item.CreatedAt, &item.UpdatedAt); err != nil {
-			return nil, 0, errorutils.AnalyzeDBErr(err)
-		}
-		items = append(items, item)
 	}
 
 	return items, total, nil
@@ -74,7 +71,7 @@ func (r *repository) GetByID(ctx context.Context, id uuid.UUID) (*Item, error) {
 	`
 
 	item := &Item{}
-	err := r.db.QueryRowContext(ctx, query, id).Scan(&item.ID, &item.Name, &item.Description, &item.CreatedAt, &item.UpdatedAt)
+	err := r.db.GetContext(ctx, item, query, id)
 	if err != nil {
 		return nil, errorutils.AnalyzeDBErr(err)
 	}
@@ -85,12 +82,21 @@ func (r *repository) GetByID(ctx context.Context, id uuid.UUID) (*Item, error) {
 func (r *repository) Update(ctx context.Context, id uuid.UUID, item *Item) error {
 	query := `
 		UPDATE items
-		SET name = $2, description = $3, updated_at = NOW()
-		WHERE id = $1
+		SET name = :name, description = :description, updated_at = NOW()
+		WHERE id = :id
 		RETURNING updated_at
 	`
 
-	err := r.db.QueryRowContext(ctx, query, id, item.Name, item.Description).Scan(&item.UpdatedAt)
+	// Set the ID for the update
+	item.ID = id
+
+	stmt, err := r.db.PrepareNamedContext(ctx, query)
+	if err != nil {
+		return errorutils.AnalyzeDBErr(err)
+	}
+	defer stmt.Close()
+
+	err = stmt.GetContext(ctx, &item.UpdatedAt, item)
 	if err != nil {
 		return errorutils.AnalyzeDBErr(err)
 	}

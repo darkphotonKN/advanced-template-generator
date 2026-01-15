@@ -44,6 +44,7 @@ The template provides a working example API with:
 - **Example Entity**: "item" - a simple CRUD example
 - **Clean Architecture**: Repository, Service, Handler layers
 - **Error Handling**: Professional error utilities included
+- **SQLX Integration**: Uses sqlx for cleaner database operations
 - **No Template Variables in Code**: All Go code is ready to run
 
 Only configuration files need processing:

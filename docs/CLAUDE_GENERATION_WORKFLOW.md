@@ -77,11 +77,11 @@ Does this look correct? (yes/no)
    - Apply random offset ±50 for each service
    - Ensure ports are within 1024-65535 range
 
-3. **Process Configuration Files Only**
-   Replace variables in the 3 `.tmpl` files:
-   - `docker-compose.yml.tmpl` → `docker-compose.yml`
-   - `.env.example.tmpl` → `.env.example`
-   - `go.mod.tmpl` (if exists) → Update module name in `go.mod`
+3. **Process Configuration Template Files**
+   Replace variables in these `.tmpl` files:
+
+   **docker-compose.yml.tmpl** → **docker-compose.yml**
+   **`.env.example.tmpl`** → **`.env.example`**
 
    Variables to replace:
    ```
@@ -95,15 +95,18 @@ Does this look correct? (yes/no)
    {{.DBPassword}} → password
    ```
 
-4. **Update Go Module**
-   - Update module name in `go.mod`
-   - Update all import paths to use new module name
-   - The template uses "item" as the example entity - users can refactor later if needed
-
-5. **Initialize Project**
+4. **Update Go Module and Dependencies**
    ```bash
-   go mod init github.com/kranti/{project-name}
+   # Update module name in go.mod
+   # Update all import paths from "github.com/darkphotonKN/go-template-generator"
+   # to "github.com/kranti/{project-name}"
+
+   # Install dependencies
    go mod tidy
+   ```
+
+5. **Initialize Project Repository**
+   ```bash
    rm -rf .git
    git init
    git add .

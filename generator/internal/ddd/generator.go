@@ -35,10 +35,22 @@ type Generator struct {
 }
 
 func NewGenerator(opts *GeneratorOptions) *Generator {
-	// Calculate template directory (relative to generator binary)
-	execPath, _ := os.Executable()
-	generatorDir := filepath.Dir(execPath)
-	templateDir := filepath.Join(generatorDir, "..", "templates", "ddd-api")
+	// Calculate template directory (relative to current working directory)
+	cwd, _ := os.Getwd()
+	var templateDir string
+
+	// Check if we're in the generator directory
+	if strings.HasSuffix(cwd, "/generator") {
+		templateDir = filepath.Join(cwd, "..", "templates", "ddd-api")
+	} else if strings.HasSuffix(cwd, "/go-template-generator") {
+		// We're in the parent directory
+		templateDir = filepath.Join(cwd, "templates", "ddd-api")
+	} else {
+		// Fallback to relative to binary
+		execPath, _ := os.Executable()
+		generatorDir := filepath.Dir(execPath)
+		templateDir = filepath.Join(generatorDir, "..", "templates", "ddd-api")
+	}
 
 	return &Generator{
 		opts:        opts,
