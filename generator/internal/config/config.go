@@ -19,6 +19,7 @@ type Config struct {
 		BaseAPI       int `yaml:"base_api"`
 		BaseDB        int `yaml:"base_db"`
 		BaseRedis     int `yaml:"base_redis"`
+		BaseFrontend  int `yaml:"base_frontend"`
 		Increment     int `yaml:"increment"`
 		Randomization struct {
 			Enabled bool `yaml:"enabled"`
@@ -27,11 +28,12 @@ type Config struct {
 	} `yaml:"ports"`
 
 	Defaults struct {
-		ModulePrefix  string `yaml:"module_prefix"`
-		IncludeAuth   bool   `yaml:"include_auth"`
-		IncludeRedis  bool   `yaml:"include_redis"`
-		IncludeS3     bool   `yaml:"include_s3"`
-		PrimaryEntity string `yaml:"primary_entity"`
+		ModulePrefix    string `yaml:"module_prefix"`
+		IncludeAuth     bool   `yaml:"include_auth"`
+		IncludeRedis    bool   `yaml:"include_redis"`
+		IncludeS3       bool   `yaml:"include_s3"`
+		IncludeFrontend bool   `yaml:"include_frontend"`
+		PrimaryEntity   string `yaml:"primary_entity"`
 	} `yaml:"defaults"`
 
 	ProjectsRegistry string `yaml:"projects_registry"`
@@ -53,6 +55,10 @@ type Config struct {
 			Enabled     bool   `yaml:"enabled"`
 			Description string `yaml:"description"`
 		} `yaml:"redis"`
+		Frontend struct {
+			Enabled     bool   `yaml:"enabled"`
+			Description string `yaml:"description"`
+		} `yaml:"frontend"`
 	} `yaml:"features"`
 }
 

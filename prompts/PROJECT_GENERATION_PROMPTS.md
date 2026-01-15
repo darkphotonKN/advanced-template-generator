@@ -77,7 +77,25 @@ Only say yes if you specifically need file/image uploads.
 Include S3 uploads? (yes/no, default: no):
 ```
 
-### 5. Project Description
+### 5. Frontend Application
+```
+🖥️ **Frontend Application**
+Do you need a Next.js frontend for your API?
+
+- **Yes**: Adds complete React frontend with forms, tables, auth UI
+- **No (recommended)**: API-only project
+
+The frontend will be configured to connect to your API and includes:
+- Next.js 15 with TypeScript
+- Tailwind CSS and shadcn/ui components
+- TanStack Query for data fetching
+- Zustand for state management
+- Full CRUD UI for your entities
+
+Include frontend? (yes/no, default: no):
+```
+
+### 6. Project Description
 ```
 📋 **Project Description**
 Brief description of what this API does (will be added to documentation):
@@ -109,12 +127,14 @@ Your description:
 **Features:**
 - Authentication: {✅/❌}
 - S3 Uploads: {✅/❌}
+- Frontend: {✅/❌}
 - Redis Caching: ✅ (always included)
 
 **Infrastructure:**
 - API Port: ~{calculated_port}±50 (randomized)
 - Database Port: ~{calculated_port}±50 (randomized)
 - Redis Port: ~{calculated_port}±50 (randomized)
+- Frontend Port: ~{calculated_port}±50 (randomized) [if frontend enabled]
 
 Does this look correct? Type 'yes' to proceed or 'no' to start over:
 ```

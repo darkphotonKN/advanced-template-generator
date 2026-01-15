@@ -16,7 +16,7 @@ cd generator
 
 ### 3. Follow Interactive Workflow
 Use the structured workflow from `docs/CLAUDE_GENERATION_WORKFLOW.md` to:
-- Gather project requirements (name, entity, auth, S3, description)
+- Gather project requirements (name, entity, auth, S3, frontend, description)
 - Validate inputs using `docs/VALIDATION_CHECKLIST.md`
 - Use prompts from `prompts/PROJECT_GENERATION_PROMPTS.md`
 
@@ -57,8 +57,11 @@ Only configuration files need processing:
 **Simple Request:**
 "Create a todo app API without authentication"
 
+**With Frontend:**
+"Create a task management app with frontend and authentication"
+
 **Detailed Request:**
-"Generate an e-commerce product management API with JWT auth and S3 image uploads"
+"Generate an e-commerce product management API with JWT auth, S3 image uploads, and React frontend"
 
 **Your Response Pattern:**
 1. Start with greeting from `prompts/PROJECT_GENERATION_PROMPTS.md`
@@ -83,6 +86,7 @@ These are configured in `generator/config.yaml` and apply to ALL projects:
 **Default Features (but still ask to confirm):**
 - Authentication: `true` by default
 - S3 uploads: `false` by default
+- Frontend: `false` by default
 - Redis caching: Always included (never ask)
 
 ### What Claude Prompts For (Per Project)
@@ -92,7 +96,8 @@ You MUST gather these for each project:
 2. **Primary Entity** - Required (must ask if not clear)
 3. **Authentication** - Ask yes/no (default: yes)
 4. **S3 Uploads** - Ask yes/no (default: no)
-5. **Description** - Required for documentation
+5. **Frontend** - Ask yes/no (default: no)
+6. **Description** - Required for documentation
 
 ### How to Modify Defaults
 Users can edit `generator/config.yaml` if they need:

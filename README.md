@@ -1,17 +1,25 @@
 # Go Template Generator
 
-Generates production-ready Go DDD API projects with clean architecture, hot reload, and Docker setup.
+Generates production-ready Go DDD API projects with clean architecture, hot reload, Docker setup, and optional Next.js frontend.
 
 ## Features
 
+### Backend (Go)
 - **DDD Architecture**: Domain-Driven Design with clean separation
 - **Hot Reload**: Pre-configured Air for development
 - **Docker Ready**: PostgreSQL, Redis with Docker Compose
 - **Database Migrations**: Built-in migration support
 - **Optional Auth**: JWT authentication (configurable)
-- **Zero Config Start**: Working project in seconds
-- **Claude Integration**: AI-assisted project generation
 - **SOLID Principles**: ISP, DIP, and clean separation
+
+### Frontend (Next.js) - Optional
+- **Next.js 15**: Latest React framework with App Router
+- **TypeScript**: Full type safety
+- **Tailwind CSS**: Utility-first styling with shadcn/ui components
+- **TanStack Query**: Data fetching and caching
+- **Zustand**: State management
+- **Axios**: HTTP client with interceptors
+- **Full CRUD UI**: Pre-built components for entity management
 
 ## Setup for Claude Code
 
@@ -62,6 +70,7 @@ defaults:
 - Primary entity (e.g., task, product, post)
 - Authentication needed? (default: yes)
 - S3 uploads needed? (default: no)
+- Frontend needed? (default: no)
 - Project description
 
 ### Project Location
@@ -87,13 +96,21 @@ See [Configuration Guide](docs/CONFIG_GUIDE.md) for detailed options including:
 **Prompt:** "Create a todo app API without authentication"
 **Result:** `../todo-app/` with task management endpoints
 
+### Full-Stack App with Frontend
+**Prompt:** "Create a task management app with frontend and authentication"
+**Result:**
+- `../task-manager/` - Go API
+- `../task-manager-frontend/` - Next.js app
+
 ### E-commerce with Auth
 **Prompt:** "Generate an e-commerce product API with JWT authentication"
 **Result:** `../ecommerce-api/` with protected product endpoints
 
-### Blog Platform
-**Prompt:** "Create a blog API with post management and authentication"
-**Result:** `../blog-api/` with post CRUD and JWT middleware
+### Blog Platform with UI
+**Prompt:** "Create a blog platform with frontend, authentication, and image uploads"
+**Result:**
+- `../blog-platform/` - Go API with S3 support
+- `../blog-platform-frontend/` - Full React UI
 
 ### Generated Project Structure
 

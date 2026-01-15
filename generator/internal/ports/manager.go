@@ -11,25 +11,28 @@ type Manager struct {
 	BaseAPIPort      int
 	BaseDBPort       int
 	BaseRedisPort    int
+	BaseFrontendPort int
 	Increment        int
 	RandomEnabled    bool
 	RandomRange      int
 }
 
 type Ports struct {
-	API   int
-	DB    int
-	Redis int
+	API      int
+	DB       int
+	Redis    int
+	Frontend int
 }
 
 func NewManager(cfg *config.Config) *Manager {
 	return &Manager{
-		BaseAPIPort:   cfg.Ports.BaseAPI,
-		BaseDBPort:    cfg.Ports.BaseDB,
-		BaseRedisPort: cfg.Ports.BaseRedis,
-		Increment:     cfg.Ports.Increment,
-		RandomEnabled: cfg.Ports.Randomization.Enabled,
-		RandomRange:   cfg.Ports.Randomization.Range,
+		BaseAPIPort:      cfg.Ports.BaseAPI,
+		BaseDBPort:       cfg.Ports.BaseDB,
+		BaseRedisPort:    cfg.Ports.BaseRedis,
+		BaseFrontendPort: cfg.Ports.BaseFrontend,
+		Increment:        cfg.Ports.Increment,
+		RandomEnabled:    cfg.Ports.Randomization.Enabled,
+		RandomRange:      cfg.Ports.Randomization.Range,
 	}
 }
 
@@ -40,17 +43,19 @@ func (m *Manager) AllocatePorts(projectIndex int) Ports {
 
 	// Calculate base ports
 	basePorts := Ports{
-		API:   m.BaseAPIPort + baseOffset,
-		DB:    m.BaseDBPort + baseOffset,
-		Redis: m.BaseRedisPort + baseOffset,
+		API:      m.BaseAPIPort + baseOffset,
+		DB:       m.BaseDBPort + baseOffset,
+		Redis:    m.BaseRedisPort + baseOffset,
+		Frontend: m.BaseFrontendPort + baseOffset,
 	}
 
 	// Apply randomization if enabled
 	if m.RandomEnabled && m.RandomRange > 0 {
 		return Ports{
-			API:   m.applyRandomOffset(basePorts.API),
-			DB:    m.applyRandomOffset(basePorts.DB),
-			Redis: m.applyRandomOffset(basePorts.Redis),
+			API:      m.applyRandomOffset(basePorts.API),
+			DB:       m.applyRandomOffset(basePorts.DB),
+			Redis:    m.applyRandomOffset(basePorts.Redis),
+			Frontend: m.applyRandomOffset(basePorts.Frontend),
 		}
 	}
 
