@@ -4,7 +4,7 @@ import (
 	"crypto/rand"
 	"math/big"
 
-	"github.com/kranti/go-template-generator/internal/config"
+	"github.com/darkphotonKN/go-template-generator/internal/config"
 )
 
 type Manager struct {

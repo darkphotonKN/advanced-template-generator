@@ -4,17 +4,18 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/kranti/go-template-generator/internal/config"
-	"github.com/kranti/go-template-generator/internal/ddd"
+	"github.com/darkphotonKN/go-template-generator/internal/config"
+	"github.com/darkphotonKN/go-template-generator/internal/ddd"
 	"github.com/spf13/cobra"
 )
 
 var (
 	// Flags
-	entity      string
-	noAuth      bool
-	withS3      bool
-	description string
+	entity       string
+	noAuth       bool
+	withS3       bool
+	withFrontend bool
+	description  string
 )
 
 var rootCmd = &cobra.Command{
@@ -47,6 +48,9 @@ var createCmd = &cobra.Command{
 		if withS3 {
 			cfg.Features.S3.Enabled = true
 		}
+		if withFrontend {
+			cfg.Features.Frontend.Enabled = true
+		}
 		if description == "" {
 			description = fmt.Sprintf("DDD API for %s management", cfg.Defaults.PrimaryEntity)
 		}
@@ -58,6 +62,7 @@ var createCmd = &cobra.Command{
 			IncludeAuth:       cfg.Features.Auth.Enabled,
 			IncludeS3:         cfg.Features.S3.Enabled,
 			IncludeRedis:      cfg.Features.Redis.Enabled,
+			IncludeFrontend:   cfg.Features.Frontend.Enabled,
 			ProjectDescription: description,
 			Config:            cfg,
 		}
@@ -71,12 +76,19 @@ var createCmd = &cobra.Command{
 
 		fmt.Printf("\n✅ Project '%s' created successfully!\n\n", projectName)
 		fmt.Printf("Next steps:\n")
-		fmt.Printf("  cd %s\n", projectName)
+		if opts.IncludeFrontend {
+			fmt.Printf("  cd %s/%s-server\n", projectName, projectName)
+		} else {
+			fmt.Printf("  cd %s\n", projectName)
+		}
 		fmt.Printf("  cp .env.example .env\n")
 		fmt.Printf("  make docker-up\n")
 		fmt.Printf("  make migrate-up\n")
 		fmt.Printf("  make dev\n\n")
 		fmt.Printf("Your API will be running at http://localhost:%d\n", opts.APIPort)
+		if opts.IncludeFrontend {
+			fmt.Printf("Your frontend will be running at http://localhost:%d\n", opts.FrontendPort)
+		}
 	},
 }
 
@@ -115,6 +127,7 @@ func init() {
 	createCmd.Flags().StringVarP(&entity, "entity", "e", "", "Primary entity name (default: item)")
 	createCmd.Flags().BoolVar(&noAuth, "no-auth", false, "Generate without authentication")
 	createCmd.Flags().BoolVar(&withS3, "with-s3", false, "Include S3 file upload support")
+	createCmd.Flags().BoolVar(&withFrontend, "with-frontend", false, "Include Next.js frontend")
 	createCmd.Flags().StringVarP(&description, "description", "d", "", "Project description for CLAUDE.md")
 
 	rootCmd.AddCommand(createCmd)

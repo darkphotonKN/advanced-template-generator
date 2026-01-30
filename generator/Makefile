@@ -47,3 +47,11 @@ setup: deps
 	@echo "Development environment setup complete!"
 
 .PHONY: build deps run install clean fmt test setup
+
+# For manual development
+
+.PHONY: dev
+dev: 
+	@echo "Starting development server with hot reload..."
+	@air
+

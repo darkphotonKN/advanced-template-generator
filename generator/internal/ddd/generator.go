@@ -7,10 +7,10 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/kranti/go-template-generator/internal/config"
-	"github.com/kranti/go-template-generator/internal/git"
-	"github.com/kranti/go-template-generator/internal/ports"
-	"github.com/kranti/go-template-generator/internal/registry"
+	"github.com/darkphotonKN/go-template-generator/internal/config"
+	"github.com/darkphotonKN/go-template-generator/internal/git"
+	"github.com/darkphotonKN/go-template-generator/internal/ports"
+	"github.com/darkphotonKN/go-template-generator/internal/registry"
 )
 
 type GeneratorOptions struct {
@@ -19,17 +19,19 @@ type GeneratorOptions struct {
 	IncludeAuth        bool
 	IncludeS3          bool
 	IncludeRedis       bool
+	IncludeFrontend    bool
 	ProjectDescription string
 	Config             *config.Config
 	APIPort            int
 	DBPort             int
 	RedisPort          int
+	FrontendPort       int
 }
 
 type Generator struct {
-	opts      *GeneratorOptions
-	registry  *registry.Manager
-	portMgr   *ports.Manager
+	opts        *GeneratorOptions
+	registry    *registry.Manager
+	portMgr     *ports.Manager
 	templateDir string
 	targetDir   string
 }
@@ -52,12 +54,22 @@ func NewGenerator(opts *GeneratorOptions) *Generator {
 		templateDir = filepath.Join(generatorDir, "..", "templates", "ddd-api")
 	}
 
+	// Determine target directory based on whether frontend is included
+	var targetDir string
+	if opts.IncludeFrontend {
+		// Full-stack: create container folder with -server subfolder
+		targetDir = filepath.Join(opts.ProjectName, opts.ProjectName+"-server")
+	} else {
+		// Backend only: just the project name
+		targetDir = opts.ProjectName
+	}
+
 	return &Generator{
 		opts:        opts,
 		registry:    registry.NewManager(opts.Config.ProjectsRegistry),
 		portMgr:     ports.NewManager(opts.Config),
 		templateDir: templateDir,
-		targetDir:   opts.ProjectName,
+		targetDir:   targetDir,
 	}
 }
 
@@ -86,6 +98,7 @@ func (g *Generator) Generate() error {
 	g.opts.APIPort = allocatedPorts.API
 	g.opts.DBPort = allocatedPorts.DB
 	g.opts.RedisPort = allocatedPorts.Redis
+	g.opts.FrontendPort = allocatedPorts.Frontend
 
 	// Copy template
 	fmt.Printf("📁 Creating project directory '%s'...\n", g.opts.ProjectName)
@@ -245,3 +258,4 @@ func (g *Generator) initGoModule(moduleName string) error {
 func NewProjectRegistry(registryPath string) *registry.Manager {
 	return registry.NewManager(registryPath)
 }
+

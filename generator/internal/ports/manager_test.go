@@ -3,7 +3,7 @@ package ports
 import (
 	"testing"
 
-	"github.com/kranti/go-template-generator/internal/config"
+	"github.com/darkphotonKN/go-template-generator/internal/config"
 )
 
 func TestAllocatePorts(t *testing.T) {

@@ -31,7 +31,7 @@ ports:
 # PROJECT DEFAULTS
 # These are DEFAULT values - Claude will still ask users to confirm
 defaults:
-  module_prefix: "github.com/kranti/"  # CHANGE THIS to your GitHub username!
+  module_prefix: "github.com/darkphotonKN/"  # Your GitHub username
   include_auth: true            # Default: Include JWT authentication
   include_redis: true           # Always included (required for DDD template)
   include_s3: false             # Default: No S3 file uploads

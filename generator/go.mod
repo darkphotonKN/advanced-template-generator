@@ -1,4 +1,4 @@
-module github.com/kranti/go-template-generator
+module github.com/darkphotonKN/go-template-generator
 
 go 1.23.0
 
