@@ -98,7 +98,7 @@ netstat -ln | grep :{calculated_port}
 
 ### ✅ Required Variables
 - [ ] `{{.ProjectName}}` → Valid project name
-- [ ] `{{.ModuleName}}` → github.com/kranti/{project-name}
+- [ ] `{{.ModuleName}}` → github.com/darkphotonKN/{project-name}
 - [ ] `{{.PrimaryEntity}}` → Valid entity name
 - [ ] `{{.EntityCapitalized}}` → Capitalized entity
 - [ ] `{{.EntityPlural}}` → Proper plural form

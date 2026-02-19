@@ -1,13 +1,15 @@
 # Claude-Assisted Project Generation Workflow
 
-This document provides step-by-step instructions for Claude to help users generate new DDD API projects using the go-template-generator.
+This document provides step-by-step instructions for Claude to help users generate new DDD API projects with optional Next.js frontend using the go-template-generator.
 
 ## Pre-Generation Setup
 
 Before starting any generation, Claude should:
 1. **Start in root directory** `/go-template-generator/` where CLAUDE.md is located
 2. **Navigate to generator**: `cd generator`
-3. Verify the template structure exists at `templates/ddd-api/`
+3. Verify the template structures exist:
+   - Backend: `templates/ddd-api/`
+   - Frontend: `templates/nextjs-frontend/`
 4. Check that `config.yaml` contains the permanent settings including `output_location: "../"`
 5. Load the current project registry from `~/.go-gen-projects.json` if it exists
 
@@ -18,7 +20,7 @@ Before starting any generation, Claude should:
 **Claude should ask these questions in order:**
 
 ```
-🚀 Let's create a new DDD API project!
+🚀 Let's create a new full-stack project!
 
 1. **Project Name**: What would you like to call your project?
    - Must be lowercase, can include hyphens
@@ -26,7 +28,7 @@ Before starting any generation, Claude should:
    - Example: "todo-app", "inventory-system", "blog-api"
 
 2. **Primary Entity**: What's the main thing your API will manage?
-   - This becomes your domain model (replaces "financial" from template)
+   - This becomes your domain model (replaces "item" from template)
    - Should be singular, lowercase
    - Example: "task", "product", "post", "user"
 
@@ -38,7 +40,12 @@ Before starting any generation, Claude should:
    - Default: No (adds complexity)
    - Say "yes" if you need image/document uploads
 
-5. **Description**: Brief description of your project
+5. **Frontend Application**: Do you want a Next.js frontend?
+   - Default: No (API-only project)
+   - Say "yes" if you want a complete React UI with forms, tables, etc.
+   - Frontend connects automatically to your API
+
+6. **Description**: Brief description of your project
    - Will be added to CLAUDE.md
    - Example: "Task management API for personal productivity"
 ```
@@ -51,11 +58,18 @@ Before starting any generation, Claude should:
 📋 Project Configuration:
 - Name: {project-name}
 - Entity: {entity} (plural: {entities})
-- Module: github.com/kranti/{project-name}
+- Module: github.com/darkphotonKN/{project-name}
 - Database: {project_name}_db
 - Authentication: {yes/no}
 - S3 Uploads: {yes/no}
-- Assigned Ports: API ~{port}±50, DB ~{port}±50, Redis ~{port}±50
+- Frontend: {yes/no}
+- Assigned Ports: API ~{port}±50, DB ~{port}±50, Redis ~{port}±50, Frontend ~{port}±50
+
+Generated Projects:
+- Backend Only: ../{project-name}/ (Go API)
+- Full-Stack: ../{project-name}/ (Container folder)
+  - ../{project-name}/{project-name}-server/ (Go API)
+  - ../{project-name}/{project-name}-client/ (Next.js App)
 
 Does this look correct? (yes/no)
 ```
@@ -64,7 +78,9 @@ Does this look correct? (yes/no)
 
 **Claude should execute these steps:**
 
-1. **Copy Template Structure**
+### Backend Generation (Always Done)
+
+1. **Copy Backend Template Structure**
    ```bash
    # From generator/ directory, copy to sibling location
    cp -r templates/ddd-api/ ../{project-name}/
@@ -86,7 +102,7 @@ Does this look correct? (yes/no)
    Variables to replace:
    ```
    {{.ProjectName}} → project-name
-   {{.ModuleName}} → github.com/kranti/project-name
+   {{.ModuleName}} → github.com/darkphotonKN/project-name
    {{.APIPort}} → calculated_api_port
    {{.DBPort}} → calculated_db_port
    {{.RedisPort}} → calculated_redis_port
@@ -99,7 +115,7 @@ Does this look correct? (yes/no)
    ```bash
    # Update module name in go.mod
    # Update all import paths from "github.com/darkphotonKN/go-template-generator"
-   # to "github.com/kranti/{project-name}"
+   # to "github.com/darkphotonKN/{project-name}"
 
    # Install dependencies
    go mod tidy
@@ -113,19 +129,72 @@ Does this look correct? (yes/no)
    git commit -m "initial commit"
    ```
 
-6. **Update Registry**
-   Add project to `~/.go-gen-projects.json`:
-   ```json
-   {
-     "name": "project-name",
-     "index": next_index,
-     "api_port": calculated_port,
-     "db_port": calculated_port,
-     "redis_port": calculated_port,
-     "entity": "entity",
-     "created_at": "2024-01-14T10:00:00Z"
-   }
+6. **Rename Entity References**
+   ```bash
+   # Replace "item" with user's chosen entity throughout codebase
+   # Update file/folder names: internal/item/ → internal/{entity}/
+   # Update import paths and struct references
    ```
+
+### Frontend Generation (If Requested)
+
+7. **Copy Frontend Template Structure**
+   ```bash
+   # From generator/ directory, copy to same app container folder
+   cp -r templates/nextjs-frontend/ ../{project-name}/{project-name}-client/
+   cd ../{project-name}/{project-name}-client/
+   ```
+
+8. **Process Frontend Template Files**
+   Replace variables in these `.tmpl` files:
+
+   **package.json.tmpl** → **package.json**
+   **`.env.example.tmpl`** → **`.env.example`**
+   **`CLAUDE.md.tmpl`** → **`CLAUDE.md`**
+
+   Variables to replace:
+   ```
+   {{.ProjectName}} → project-name
+   {{.ProjectTitle}} → Project Name (capitalized)
+   {{.ProjectDescription}} → user description
+   {{.APIPort}} → calculated_api_port
+   {{.FrontendPort}} → calculated_frontend_port
+   {{.IncludeAuth}} → true/false
+   {{.IncludeS3}} → true/false
+   ```
+
+9. **Rename Frontend Entity References**
+   ```bash
+   # Replace "item" with user's chosen entity throughout TypeScript code
+   # Update folder names: src/features/item/ → src/features/{entity}/
+   # Update file names: use-item.ts → use-{entity}.ts
+   # Update component names and imports
+   # Update API endpoint references
+   ```
+
+10. **Initialize Frontend Dependencies**
+    ```bash
+    npm install
+    git init
+    git add .
+    git commit -m "initial commit"
+    ```
+
+11. **Update Registry**
+    Add project to `~/.go-gen-projects.json`:
+    ```json
+    {
+      "name": "project-name",
+      "index": next_index,
+      "api_port": calculated_port,
+      "db_port": calculated_port,
+      "redis_port": calculated_port,
+      "frontend_port": calculated_port,
+      "entity": "entity",
+      "has_frontend": true/false,
+      "created_at": "2024-01-14T10:00:00Z"
+    }
+    ```
 
 ### Phase 4: Success Confirmation
 

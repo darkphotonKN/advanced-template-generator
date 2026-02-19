@@ -56,12 +56,17 @@ func NewGenerator(opts *GeneratorOptions) *Generator {
 
 	// Determine target directory based on whether frontend is included
 	var targetDir string
+	baseDir := opts.Config.OutputLocation
+	if baseDir == "" {
+		baseDir = "./" // fallback to current directory
+	}
+
 	if opts.IncludeFrontend {
 		// Full-stack: create container folder with -server subfolder
-		targetDir = filepath.Join(opts.ProjectName, opts.ProjectName+"-server")
+		targetDir = filepath.Join(baseDir, opts.ProjectName, opts.ProjectName+"-server")
 	} else {
 		// Backend only: just the project name
-		targetDir = opts.ProjectName
+		targetDir = filepath.Join(baseDir, opts.ProjectName)
 	}
 
 	return &Generator{
@@ -239,16 +244,25 @@ func (g *Generator) initGoModule(moduleName string) error {
 	}
 	defer os.Chdir(originalDir)
 
-	// Initialize Go module
-	cmd := exec.Command("go", "mod", "init", moduleName)
-	if err := cmd.Run(); err != nil {
-		return fmt.Errorf("failed to run 'go mod init': %w", err)
-	}
+	// Check if go.mod already exists (from template processing)
+	if _, err := os.Stat("go.mod"); err == nil {
+		// go.mod exists, just run go mod tidy to update dependencies
+		cmd := exec.Command("go", "mod", "tidy")
+		if err := cmd.Run(); err != nil {
+			return fmt.Errorf("failed to run 'go mod tidy': %w", err)
+		}
+	} else {
+		// go.mod doesn't exist, initialize it
+		cmd := exec.Command("go", "mod", "init", moduleName)
+		if err := cmd.Run(); err != nil {
+			return fmt.Errorf("failed to run 'go mod init': %w", err)
+		}
 
-	// Run go mod tidy
-	cmd = exec.Command("go", "mod", "tidy")
-	if err := cmd.Run(); err != nil {
-		return fmt.Errorf("failed to run 'go mod tidy': %w", err)
+		// Run go mod tidy
+		cmd = exec.Command("go", "mod", "tidy")
+		if err := cmd.Run(); err != nil {
+			return fmt.Errorf("failed to run 'go mod tidy': %w", err)
+		}
 	}
 
 	return nil

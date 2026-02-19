@@ -3,7 +3,7 @@ package item
 import (
 	"context"
 
-	"github.com/darkphotonKN/go-template-generator/internal/utils/errorutils"
+	"{{.ModuleName}}/internal/utils/errorutils"
 	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
 )

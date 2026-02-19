@@ -46,7 +46,7 @@ go-template-generator/
 
 #### **Template Variables System**
 - `{{.ProjectName}}` → "inventory"
-- `{{.ModuleName}}` → "github.com/kranti/inventory"
+- `{{.ModuleName}}` → "github.com/darkphotonKN/inventory"
 - `{{.PrimaryEntity}}` → "product"
 - `{{.EntityPlural}}` → "products"
 - `{{.APIPort}}`, `{{.DBPort}}`, `{{.RedisPort}}`
@@ -119,7 +119,7 @@ make dev             # Start with hot reload
 - **Redis**: Port ~6389±50 (e.g., 6435, 6423, 6341)
 - **Entity**: `product` (becomes `products` table, `Product` struct)
 - **Features**: Auth ✅, S3 ✅, Redis ✅
-- **Module**: `github.com/kranti/ecommerce`
+- **Module**: `github.com/darkphotonKN/ecommerce`
 
 ### Generated Structure:
 ```
@@ -162,7 +162,7 @@ All projects are tracked in `~/.go-gen-projects.json`:
 - **Permanent settings** that never change
 - **Database credentials**: Always `user`/`password`
 - **Port allocation**: Base ports + increment logic
-- **Module prefix**: `github.com/kranti/`
+- **Module prefix**: `github.com/darkphotonKN/`
 - **Feature defaults**: Auth on, S3 off, Redis on
 
 ### CLI Flags Override Config

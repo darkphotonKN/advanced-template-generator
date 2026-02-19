@@ -6,8 +6,8 @@ import (
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/jmoiron/sqlx"
-	"github.com/darkphotonKN/go-template-generator/internal/item"
-	"github.com/darkphotonKN/go-template-generator/internal/middleware"
+	"{{.ModuleName}}/internal/item"
+	"{{.ModuleName}}/internal/middleware"
 )
 
 func SetupRoutes(db *sqlx.DB, logger *slog.Logger) *gin.Engine {

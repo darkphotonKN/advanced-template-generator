@@ -36,6 +36,7 @@ type Config struct {
 		PrimaryEntity   string `yaml:"primary_entity"`
 	} `yaml:"defaults"`
 
+	OutputLocation   string `yaml:"output_location"`
 	ProjectsRegistry string `yaml:"projects_registry"`
 
 	Git struct {
@@ -65,12 +66,17 @@ type Config struct {
 func LoadConfig(path string) (*Config, error) {
 	// Check if path is relative or absolute
 	if !filepath.IsAbs(path) {
-		// If relative, look in the generator directory
-		execPath, err := os.Executable()
-		if err != nil {
-			return nil, fmt.Errorf("failed to get executable path: %w", err)
+		// If relative, first try current working directory
+		if _, err := os.Stat(path); err == nil {
+			// File exists in current directory, use it
+		} else {
+			// If not found, look relative to executable (for built binaries)
+			execPath, err := os.Executable()
+			if err != nil {
+				return nil, fmt.Errorf("failed to get executable path: %w", err)
+			}
+			path = filepath.Join(filepath.Dir(execPath), "..", path)
 		}
-		path = filepath.Join(filepath.Dir(execPath), "..", path)
 	}
 
 	data, err := os.ReadFile(path)

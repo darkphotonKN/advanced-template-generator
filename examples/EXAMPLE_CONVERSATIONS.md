@@ -90,7 +90,7 @@ Your description:
 
 **Project Details:**
 - Name: todo-app
-- Module: github.com/kranti/todo-app
+- Module: github.com/darkphotonKN/todo-app
 - Database: todo_app_db
 
 **Entity Configuration:**
@@ -225,7 +225,7 @@ Your description:
 
 **Project Details:**
 - Name: ecommerce-api
-- Module: github.com/kranti/ecommerce-api
+- Module: github.com/darkphotonKN/ecommerce-api
 - Database: ecommerce_api_db
 
 **Entity Configuration:**
@@ -415,7 +415,7 @@ Brief description (or press enter for default):
 
 **Project Details:**
 - Name: inventory-api
-- Module: github.com/kranti/inventory-api
+- Module: github.com/darkphotonKN/inventory-api
 - Database: inventory_api_db
 - Description: DDD API for product management
 

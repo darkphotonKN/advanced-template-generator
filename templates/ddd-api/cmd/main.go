@@ -11,7 +11,7 @@ import (
 	"time"
 
 	"github.com/joho/godotenv"
-	"github.com/darkphotonKN/go-template-generator/config"
+	"{{.ModuleName}}/config"
 )
 
 func main() {

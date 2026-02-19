@@ -218,7 +218,7 @@ Error: go: malformed module path
 
    # Regenerate if corrupted
    rm go.mod
-   go mod init github.com/kranti/project-name
+   go mod init github.com/darkphotonKN/project-name
    go mod tidy
    ```
 

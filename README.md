@@ -25,7 +25,7 @@ Generates production-ready Go DDD API projects with clean architecture, hot relo
 
 ### 1. Clone and Setup
 ```bash
-git clone https://github.com/kranti/go-template-generator.git
+git clone https://github.com/darkphotonKN/go-template-generator.git
 cd go-template-generator
 ```
 
@@ -63,7 +63,7 @@ defaults:
 - Database: `user`/`password` credentials
 - Ports: Base values with ±50 randomization
 - Location: Projects created as siblings (`../`)
-- Module: `github.com/kranti/` prefix
+- Module: `github.com/darkphotonKN/` prefix
 
 **Claude prompts for (per project):**
 - Project name
@@ -98,9 +98,9 @@ See [Configuration Guide](docs/CONFIG_GUIDE.md) for detailed options including:
 
 ### Full-Stack App with Frontend
 **Prompt:** "Create a task management app with frontend and authentication"
-**Result:**
-- `../task-manager/` - Go API
-- `../task-manager-frontend/` - Next.js app
+**Result:** `../task-manager/` containing:
+- `task-manager-server/` - Go API
+- `task-manager-client/` - Next.js app
 
 ### E-commerce with Auth
 **Prompt:** "Generate an e-commerce product API with JWT authentication"
@@ -108,9 +108,9 @@ See [Configuration Guide](docs/CONFIG_GUIDE.md) for detailed options including:
 
 ### Blog Platform with UI
 **Prompt:** "Create a blog platform with frontend, authentication, and image uploads"
-**Result:**
-- `../blog-platform/` - Go API with S3 support
-- `../blog-platform-frontend/` - Full React UI
+**Result:** `../blog-platform/` containing:
+- `blog-platform-server/` - Go API with S3 support
+- `blog-platform-client/` - Full React UI
 
 ### Generated Project Structure
 

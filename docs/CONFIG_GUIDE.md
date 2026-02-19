@@ -58,7 +58,7 @@ ports:
 
 ```yaml
 defaults:
-  module_prefix: "github.com/kranti/"  # Go module prefix
+  module_prefix: "github.com/darkphotonKN/"  # Go module prefix
   include_auth: true                   # Default auth setting
   include_redis: true                  # Redis always included
   include_s3: false                    # Default S3 setting

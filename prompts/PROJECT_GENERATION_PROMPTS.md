@@ -115,7 +115,7 @@ Your description:
 
 **Project Details:**
 - Name: {project-name}
-- Module: github.com/kranti/{project-name}
+- Module: github.com/darkphotonKN/{project-name}
 - Database: {project_name}_db
 
 **Entity Configuration:**

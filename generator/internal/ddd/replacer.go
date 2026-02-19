@@ -85,8 +85,13 @@ func (r *Replacer) ProcessDirectory(dirPath string) error {
 
 // shouldProcessFile determines if a file should be processed
 func (r *Replacer) shouldProcessFile(path string) bool {
-	// Process .tmpl files and certain other files
+	// Process .tmpl files
 	if strings.HasSuffix(path, ".tmpl") {
+		return true
+	}
+
+	// Process all .go files for module name replacement
+	if strings.HasSuffix(path, ".go") {
 		return true
 	}
 

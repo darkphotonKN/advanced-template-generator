@@ -6,7 +6,7 @@ import (
 	"log/slog"
 	"strconv"
 
-	"github.com/darkphotonKN/go-template-generator/internal/utils/errorutils"
+	"{{.ModuleName}}/internal/utils/errorutils"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 )
@@ -183,3 +183,4 @@ func (h *Handler) DeleteItem(c *gin.Context) {
 
 	c.Status(204)
 }
+
