@@ -209,6 +209,49 @@ func (s *service) ProcessPayment(ctx context.Context, amount float64) error {
     }
     return nil
 }
+```
+
+## Database Transaction Handling
+
+The codebase includes `internal/utils/dbutils` with transaction helpers for atomic operations:
+
+### Using ExecTx for Transactions
+
+Use `dbutils.ExecTx` when you need to perform multiple database operations atomically:
+
+```go
+// In service layer
+func (s *service) TransferFunds(ctx context.Context, from, to uuid.UUID, amount float64) error {
+    return dbutils.ExecTx(ctx, s.db, func(tx *sqlx.Tx) error {
+        // All operations use the same transaction
+        if err := s.repo.DebitAccountTx(ctx, tx, from, amount); err != nil {
+            return err // Automatic rollback
+        }
+
+        if err := s.repo.CreditAccountTx(ctx, tx, to, amount); err != nil {
+            return err // Automatic rollback
+        }
+
+        if err := s.repo.CreateTransferRecordTx(ctx, tx, from, to, amount); err != nil {
+            return err // Automatic rollback
+        }
+
+        return nil // Automatic commit
+    })
+}
+
+// In repository layer - provide both regular and Tx versions
+func (r *repository) Create(ctx context.Context, entity *Entity) error {
+    query := `INSERT INTO entities ...`
+    _, err := r.db.ExecContext(ctx, query, ...)
+    return errorutils.AnalyzeDBErr(err)
+}
+
+func (r *repository) CreateTx(ctx context.Context, tx *sqlx.Tx, entity *Entity) error {
+    query := `INSERT INTO entities ...`
+    _, err := tx.ExecContext(ctx, query, ...)
+    return errorutils.AnalyzeDBErr(err)
+}
 
 ## Environment Variables
 
