@@ -47,11 +47,12 @@ Default output location is configured in `generator/config.yaml` as `../`
 
 **For Backend (Always Generated):**
 1. Copy templates from `templates/ddd-api/`
-2. Process template files (.tmpl) and Go files for module name replacement
+2. Process template files (.tmpl) including SYSTEM_DESIGN.md.tmpl with project-specific details
 3. Update module name in go.mod and all import paths automatically
 4. Rename "item" entity to user's chosen entity throughout codebase
-5. Initialize git repository with correct module name
-6. Update project registry
+5. Generate SYSTEM_DESIGN.md with project-specific architecture and design choices
+6. Initialize git repository with correct module name
+7. Update project registry
 
 **For Frontend (If Requested):**
 1. Use the provided frontend generation script:
@@ -76,9 +77,10 @@ Default output location is configured in `generator/config.yaml` as `../`
 **Backend Template (`templates/ddd-api/`):**
 - **Example Entity**: "item" - a simple CRUD example
 - **Clean Architecture**: Repository, Service, Handler layers
-- **Error Handling**: Professional error utilities included
+- **Error Handling**: Professional error utilities with `errorutils.AnalyzeDBErr()` - MUST be used in ALL repository methods
 - **SQLX Integration**: Uses sqlx for cleaner database operations
 - **No Template Variables in Code**: All Go code is ready to run
+- **SYSTEM_DESIGN.md**: Generated with project-specific architectural decisions and business rules
 
 **Frontend Template (`templates/nextjs-frontend/`):**
 - **Example Entity**: "item" - matches backend example
@@ -89,7 +91,7 @@ Default output location is configured in `generator/config.yaml` as `../`
 - **No Template Variables in Code**: All React code is ready to run
 
 **Template Files Processed:**
-- Backend: `docker-compose.yml.tmpl`, `.env.example.tmpl`
+- Backend: `docker-compose.yml.tmpl`, `.env.example.tmpl`, `SYSTEM_DESIGN.md.tmpl`
 - Frontend: `package.json.tmpl`, `.env.example.tmpl`, `CLAUDE.md.tmpl`
 
 ## Example User Prompts
@@ -180,6 +182,31 @@ Users can edit `generator/config.yaml` if they need:
 - Automatically managed
 - Tracks port allocations
 - Prevents conflicts
+
+## CRITICAL: Error Handling Standards for Generated Projects
+
+**ALL generated projects include `internal/utils/errorutils` package with:**
+- `AnalyzeDBErr()` - Converts database errors to standard application errors
+- Standard error types: `ErrNotFound`, `ErrDuplicateResource`, `ErrConstraintViolation`, etc.
+
+**BASELINE REQUIREMENT**: When generating new code for any project:
+1. **Repository Layer**: ALWAYS use `errorutils.AnalyzeDBErr(err)` for ALL database operations
+2. **Handler Layer**: ALWAYS handle errorutils errors with appropriate HTTP status codes
+3. **Service Layer**: Use errorutils standard errors for business logic validation
+
+**This is NON-NEGOTIABLE** - The errorutils package exists in every project specifically to avoid repetitive error checking. Use it!
+
+## Project Documentation Structure
+
+**Generated projects include two key documentation files:**
+
+1. **CLAUDE.md**: General coding standards, patterns, and conventions that apply to all projects using this template
+2. **SYSTEM_DESIGN.md**: Project-specific architectural decisions, business rules, and design choices unique to the generated project
+
+When working with generated projects:
+- Follow the general rules in CLAUDE.md
+- Refer to SYSTEM_DESIGN.md for project-specific design decisions
+- Update SYSTEM_DESIGN.md as the project evolves with new features and design choices
 
 ## Documentation Reference
 

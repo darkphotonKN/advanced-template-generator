@@ -2,6 +2,8 @@
 
 {{.ProjectDescription}}
 
+**IMPORTANT**: This document contains general coding standards and patterns. For project-specific architectural decisions, business logic, and design choices, refer to `SYSTEM_DESIGN.md`.
+
 ## Quick Commands
 
 ```bash
@@ -118,13 +120,95 @@ go test ./internal/payment -run TestSpecificFunction -v
 
 ## Architecture Rules
 
-<!-- Add project-specific rules here -->
-
 - All external services (Stripe, SendGrid, etc.) must be behind interfaces
 - Database queries only in repository layer
 - Business logic only in service layer
 - Handlers do: parse request, call service, format response — nothing else
 - No domain logic in handlers
+- **Refer to SYSTEM_DESIGN.md for project-specific architectural decisions and business rules**
+
+## Error Handling (CRITICAL - BASELINE REQUIREMENT)
+
+### Repository Layer - ALWAYS Use errorutils.AnalyzeDBErr
+
+**CRITICAL**: ALL database errors in repository methods MUST be wrapped with `errorutils.AnalyzeDBErr()`. This is NON-NEGOTIABLE. The codebase includes `internal/utils/errorutils` specifically for this purpose.
+
+```go
+// CORRECT - Always do this in repository methods:
+func (r *repository) Create(ctx context.Context, entity *Entity) error {
+    query := `INSERT INTO entities ...`
+    err := r.db.ExecContext(ctx, query, ...)
+    if err != nil {
+        return errorutils.AnalyzeDBErr(err) // ✅ ALWAYS use this
+    }
+    return nil
+}
+
+// WRONG - Never do this in repository methods:
+func (r *repository) Create(ctx context.Context, entity *Entity) error {
+    query := `INSERT INTO entities ...`
+    err := r.db.ExecContext(ctx, query, ...)
+    if err != nil {
+        return err // ❌ NEVER return raw DB errors
+    }
+    return nil
+}
+```
+
+**What errorutils.AnalyzeDBErr handles automatically:**
+- `sql.ErrNoRows` → `ErrNotFound`
+- Duplicate key violations → `ErrDuplicateResource`
+- Constraint violations → `ErrConstraintViolation`
+- Other errors → passed through unchanged
+
+### Handler Layer - Handle Known Errors
+
+Handlers should check for specific errors from errorutils and return appropriate HTTP status codes:
+
+```go
+func (h *Handler) CreateEntity(c *gin.Context) {
+    entity, err := h.service.CreateEntity(c.Request.Context(), req)
+    if err != nil {
+        switch {
+        case errors.Is(err, errorutils.ErrDuplicateResource):
+            c.JSON(409, gin.H{"error": "Entity already exists"})
+        case errors.Is(err, errorutils.ErrInvalidInput):
+            c.JSON(400, gin.H{"error": err.Error()})
+        case errors.Is(err, errorutils.ErrConstraintViolation):
+            c.JSON(400, gin.H{"error": "Invalid data provided"})
+        case errors.Is(err, errorutils.ErrNotFound):
+            c.JSON(404, gin.H{"error": "Entity not found"})
+        case errors.Is(err, errorutils.ErrForbidden):
+            c.JSON(403, gin.H{"error": "Access denied"})
+        case errors.Is(err, errorutils.ErrUnauthorized):
+            c.JSON(401, gin.H{"error": "Authentication required"})
+        default:
+            h.logger.Error("failed to create entity", slog.String("error", err.Error()))
+            c.JSON(500, gin.H{"error": "Internal server error"})
+        }
+        return
+    }
+    c.JSON(201, entity)
+}
+```
+
+### Service Layer - Business Logic Errors
+
+Services can add context or return business-specific errors:
+
+```go
+func (s *service) ProcessPayment(ctx context.Context, amount float64) error {
+    if amount <= 0 {
+        return errorutils.ErrInvalidInput // Use standard errors when applicable
+    }
+
+    payment, err := s.repo.CreatePayment(ctx, amount)
+    if err != nil {
+        // Repository already used AnalyzeDBErr, just add context if needed
+        return fmt.Errorf("payment processing failed: %w", err)
+    }
+    return nil
+}
 
 ## Environment Variables
 
