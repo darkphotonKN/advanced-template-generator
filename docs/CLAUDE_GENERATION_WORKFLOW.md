@@ -98,6 +98,7 @@ Does this look correct? (yes/no)
 
    **docker-compose.yml.tmpl** → **docker-compose.yml**
    **`.env.example.tmpl`** → **`.env.example`**
+   **`SPECIFICATION.md.tmpl`** → **`SPECIFICATION.md`**
 
    Variables to replace:
    ```
@@ -136,21 +137,27 @@ Does this look correct? (yes/no)
    # Update import paths and struct references
    ```
 
+7. **Documentation Files Created**
+   - **SPECIFICATION.md**: Project requirements and features (WHAT)
+   - **CLAUDE.md**: Coding standards and patterns (HOW)
+   - **AGENTS.md**: Test agent persona for QA (TEST)
+
 ### Frontend Generation (If Requested)
 
-7. **Copy Frontend Template Structure**
+8. **Copy Frontend Template Structure**
    ```bash
    # From generator/ directory, copy to same app container folder
    cp -r templates/nextjs-frontend/ ../{project-name}/{project-name}-client/
    cd ../{project-name}/{project-name}-client/
    ```
 
-8. **Process Frontend Template Files**
+9. **Process Frontend Template Files**
    Replace variables in these `.tmpl` files:
 
    **package.json.tmpl** → **package.json**
    **`.env.example.tmpl`** → **`.env.example`**
    **`CLAUDE.md.tmpl`** → **`CLAUDE.md`**
+   **`SPECIFICATION.md.tmpl`** → **`SPECIFICATION.md`**
 
    Variables to replace:
    ```
@@ -163,7 +170,7 @@ Does this look correct? (yes/no)
    {{.IncludeS3}} → true/false
    ```
 
-9. **Rename Frontend Entity References**
+10. **Rename Frontend Entity References**
    ```bash
    # Replace "item" with user's chosen entity throughout TypeScript code
    # Update folder names: src/features/item/ → src/features/{entity}/
@@ -172,7 +179,7 @@ Does this look correct? (yes/no)
    # Update API endpoint references
    ```
 
-10. **Initialize Frontend Dependencies**
+11. **Initialize Frontend Dependencies**
     ```bash
     npm install
     git init
@@ -180,7 +187,7 @@ Does this look correct? (yes/no)
     git commit -m "initial commit"
     ```
 
-11. **Update Registry**
+12. **Update Registry**
     Add project to `~/.go-gen-projects.json`:
     ```json
     {
@@ -209,7 +216,9 @@ Does this look correct? (yes/no)
 ├── config/routes.go               # API routes for /{entities}
 ├── migrations/                    # Database schema
 ├── docker-compose.yml            # Infrastructure (ports: {db_port}, {redis_port})
-└── CLAUDE.md                     # Development guide
+├── CLAUDE.md                     # Development guide (HOW)
+├── SPECIFICATION.md              # Project requirements (WHAT)
+└── AGENTS.md                     # Test agent persona (TEST)
 
 🚀 Next Steps:
 1. cd {project-name}
@@ -227,7 +236,10 @@ Does this look correct? (yes/no)
 - PUT    /api/{entities}/{id}      # Update {entity}
 - DELETE /api/{entities}/{id}      # Delete {entity}
 
-💡 Tip: Check CLAUDE.md in your project for development patterns and best practices!
+💡 Tips:
+- Check SPECIFICATION.md for project requirements and features
+- Check CLAUDE.md for development patterns and best practices
+- Use `/test` command to invoke test agent from AGENTS.md
 ```
 
 ## Error Handling

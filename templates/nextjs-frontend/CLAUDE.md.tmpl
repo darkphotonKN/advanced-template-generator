@@ -2,6 +2,8 @@
 
 This is a Next.js 15 frontend application for {{.ProjectDescription}}.
 
+**IMPORTANT**: This document contains implementation details (HOW we build). For project requirements and specifications (WHAT we're building), refer to `SPECIFICATION.md`. For testing support, use `AGENTS.md` with the `/test` command.
+
 ## Tech Stack
 
 - **Next.js 15** - React framework with App Router
@@ -47,6 +49,27 @@ npm run lint       # Run ESLint
 npm run format     # Format code with Prettier
 npm run type-check # Check TypeScript types
 ```
+
+## Reference Docs
+
+Before implementing features that touch APIs, state management, or UI patterns, check the relevant doc in `docs/`:
+
+| Task | Read First |
+|------|------------|
+| Component patterns | `docs/ui/*.md` |
+| API integration | `docs/api/*.md` |
+| State management patterns | `docs/state/*.md` |
+| Authentication flow | `docs/auth/*.md` |
+| File upload handling | `docs/uploads/*.md` |
+| Form validation rules | `docs/validation/*.md` |
+| Design system usage | `docs/design-system/*.md` |
+| Generated plans | `docs/plans/*.md` |
+
+**Do NOT guess component APIs, state shapes, or validation rules.** The docs have the exact specs from the design document.
+
+The docs/schema/ folder contains one file per table with exact field specs, types, constraints, indexes, and business rules extracted from the design document.
+
+If a doc doesn't exist for what you're implementing, ask before proceeding. If there are very sensible defaults for a component or API integration then you can use that while asking for confirmation.
 
 ## Development Workflow
 

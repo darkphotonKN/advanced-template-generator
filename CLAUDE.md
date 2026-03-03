@@ -2,6 +2,27 @@
 
 This project generates production-ready Go DDD API projects with clean architecture, hot reload, Docker setup, and optional Next.js frontend.
 
+## Reference Docs for This Generator
+
+Before implementing features or making changes to the generator itself, check the relevant doc in `docs/`:
+
+| Task | Read First |
+|------|------------|
+| Generation workflow | `docs/CLAUDE_GENERATION_WORKFLOW.md` |
+| Validation rules | `docs/VALIDATION_CHECKLIST.md` |
+| Configuration options | `docs/CONFIG_GUIDE.md` |
+| Frontend architecture | `docs/FRONTEND_ARCHITECTURE.md` |
+| Troubleshooting | `docs/TROUBLESHOOTING_GUIDE.md` |
+| Example conversations | `examples/EXAMPLE_CONVERSATIONS.md` |
+| Generation prompts | `prompts/PROJECT_GENERATION_PROMPTS.md` |
+| Generated plans | `docs/plans/*.md` |
+
+**Do NOT guess configuration options, validation rules, or workflow steps.** The docs have the exact procedures to follow.
+
+The docs/ folder contains detailed specifications and procedures extracted from design documents and requirements.
+
+If a doc doesn't exist for what you're implementing, create it first or ask for clarification. If there are very sensible defaults for a configuration or workflow then you can use that while asking for confirmation.
+
 ## How to Generate a New Project
 
 When the user requests a new Go API project, follow these steps:
@@ -47,12 +68,13 @@ Default output location is configured in `generator/config.yaml` as `../`
 
 **For Backend (Always Generated):**
 1. Copy templates from `templates/ddd-api/`
-2. Process template files (.tmpl) including SYSTEM_DESIGN.md.tmpl with project-specific details
+2. Process template files (.tmpl) including SPECIFICATION.md.tmpl with project-specific details
 3. Update module name in go.mod and all import paths automatically
 4. Rename "item" entity to user's chosen entity throughout codebase
-5. Generate SYSTEM_DESIGN.md with project-specific architecture and design choices
-6. Initialize git repository with correct module name
-7. Update project registry
+5. Generate SPECIFICATION.md with project requirements and features
+6. Include AGENTS.md for test agent support
+7. Initialize git repository with correct module name
+8. Update project registry
 
 **For Frontend (If Requested):**
 1. Use the provided frontend generation script:
@@ -69,6 +91,7 @@ Default output location is configured in `generator/config.yaml` as `../`
    - Process configuration template files (.tmpl)
    - Rename "item" entity to user's chosen entity throughout
    - Update import paths and component references
+   - Generate SPECIFICATION.md with frontend requirements
    - Initialize separate git repository
    - Provide setup instructions (but NOT run npm install automatically)
 
@@ -80,7 +103,8 @@ Default output location is configured in `generator/config.yaml` as `../`
 - **Error Handling**: Professional error utilities with `errorutils.AnalyzeDBErr()` - MUST be used in ALL repository methods
 - **SQLX Integration**: Uses sqlx for cleaner database operations
 - **No Template Variables in Code**: All Go code is ready to run
-- **SYSTEM_DESIGN.md**: Generated with project-specific architectural decisions and business rules
+- **SPECIFICATION.md**: Generated with project requirements and features (WHAT we're building)
+- **AGENTS.md**: Test agent persona for QA coverage with `/test` command
 
 **Frontend Template (`templates/nextjs-frontend/`):**
 - **Example Entity**: "item" - matches backend example
@@ -89,10 +113,12 @@ Default output location is configured in `generator/config.yaml` as `../`
 - **Tailwind + shadcn/ui**: Modern styling and components
 - **Zustand**: State management
 - **No Template Variables in Code**: All React code is ready to run
+- **SPECIFICATION.md**: Frontend requirements and UI/UX specifications
+- **AGENTS.md**: Frontend test agent for component testing
 
 **Template Files Processed:**
-- Backend: `docker-compose.yml.tmpl`, `.env.example.tmpl`, `SYSTEM_DESIGN.md.tmpl`
-- Frontend: `package.json.tmpl`, `.env.example.tmpl`, `CLAUDE.md.tmpl`
+- Backend: `docker-compose.yml.tmpl`, `.env.example.tmpl`, `SPECIFICATION.md.tmpl`
+- Frontend: `package.json.tmpl`, `.env.example.tmpl`, `CLAUDE.md.tmpl`, `SPECIFICATION.md.tmpl`
 
 ## Example User Prompts
 
@@ -183,6 +209,27 @@ Users can edit `generator/config.yaml` if they need:
 - Tracks port allocations
 - Prevents conflicts
 
+## SPECIFICATION.md Generation
+
+When generating a new project, Claude should:
+
+### Mode 1: Source Document Provided
+If user provides existing documentation (PDF, markdown, requirements doc):
+1. Parse the source document
+2. Extract requirements, features, domain terms
+3. Map to SPECIFICATION.md sections
+4. Flag gaps with [TBD - needs clarification]
+5. Keep content concise—summarize, don't copy verbatim
+
+### Mode 2: Starting Fresh (No Source)
+If generating from scratch via conversation:
+1. Ask user about project type, users, entities, integrations
+2. Generate minimal SPECIFICATION.md with 3-5 core features
+3. Mark non-essential sections as [TBD]
+4. Iterate with user to expand as needed
+
+**IMPORTANT**: SPECIFICATION.md should be generated BEFORE writing any code. It defines WHAT we're building, which guides HOW we build it.
+
 ## CRITICAL: Error Handling Standards for Generated Projects
 
 **ALL generated projects include `internal/utils/errorutils` package with:**
@@ -198,15 +245,37 @@ Users can edit `generator/config.yaml` if they need:
 
 ## Project Documentation Structure
 
-**Generated projects include two key documentation files:**
+**Generated projects include three key documentation files:**
 
-1. **CLAUDE.md**: General coding standards, patterns, and conventions that apply to all projects using this template
-2. **SYSTEM_DESIGN.md**: Project-specific architectural decisions, business rules, and design choices unique to the generated project
+1. **SPECIFICATION.md**: Project requirements, features, and business rules (WHAT we're building)
+   - Generated from template with project-specific details
+   - Defines domain terms, API surface, data models
+   - Should be updated when requirements change
+
+2. **CLAUDE.md**: General coding standards, patterns, and conventions (HOW we build)
+   - Implementation guidelines and best practices
+   - Error handling patterns, architecture rules
+   - Consistent across all projects using this template
+
+3. **AGENTS.md**: Test agent persona for automated QA coverage (TEST)
+   - Invoke with `/test` command in Claude
+   - Provides QA engineer mindset for writing tests
+   - Coverage priorities and testing boundaries
+
+**Documentation Hierarchy:**
+```
+SPECIFICATION.md (WHAT) ← Requirements and features
+    ↓
+CLAUDE.md (HOW) ← Code patterns and standards
+    ↓
+AGENTS.md (TEST) ← QA persona for test coverage
+```
 
 When working with generated projects:
-- Follow the general rules in CLAUDE.md
-- Refer to SYSTEM_DESIGN.md for project-specific design decisions
-- Update SYSTEM_DESIGN.md as the project evolves with new features and design choices
+- Check SPECIFICATION.md for requirements before implementing
+- Follow coding standards in CLAUDE.md
+- Use `/test` command to invoke test agent from AGENTS.md
+- Update SPECIFICATION.md when requirements change
 
 ## Documentation Reference
 
@@ -215,6 +284,30 @@ When working with generated projects:
 - `docs/VALIDATION_CHECKLIST.md` - Input validation rules
 - `examples/EXAMPLE_CONVERSATIONS.md` - Example interactions
 - `docs/TROUBLESHOOTING_GUIDE.md` - Error resolution
+
+## IMPORTANT: Working with Generated Projects
+
+When users ask you to work on a project that was generated using this template generator, you MUST:
+
+1. **Check for docs/ directory first**:
+   - Look for `docs/schema/*.md` for database specifications
+   - Look for `docs/api/*.md` for API endpoint specs
+   - Look for `docs/integrations/*.md` for third-party service specs
+   - Look for `docs/plans/*.md` for previously generated implementation plans
+
+2. **Never guess specifications**:
+   - If docs exist, use the EXACT field types, constraints, and API shapes specified
+   - The docs/schema/ folder contains one file per table with exact field specs
+   - If docs don't exist for what you're implementing, ask before proceeding
+   - If there are sensible defaults, you can propose them while asking for confirmation
+
+3. **Follow the documentation hierarchy**:
+   - `SPECIFICATION.md` - What we're building (requirements)
+   - `CLAUDE.md` - How we build (patterns and standards)
+   - `docs/*` - Detailed specs for specific features
+   - `AGENTS.md` - Test coverage with /test command
+
+This ensures consistency and prevents implementation errors from guessing or assumptions.
 
 ## Quick Start Example
 

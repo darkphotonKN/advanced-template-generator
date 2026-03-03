@@ -101,6 +101,7 @@ func (r *Replacer) shouldProcessFile(path string) bool {
 		"docker-compose.yml",
 		".env.example",
 		"CLAUDE.md",
+		"SPECIFICATION.md",
 	}
 
 	for _, file := range processableFiles {

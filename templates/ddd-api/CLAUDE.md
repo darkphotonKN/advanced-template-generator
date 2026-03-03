@@ -2,7 +2,7 @@
 
 {{.ProjectDescription}}
 
-**IMPORTANT**: This document contains general coding standards and patterns. For project-specific architectural decisions, business logic, and design choices, refer to `SYSTEM_DESIGN.md`.
+**IMPORTANT**: This document contains general coding standards and patterns (HOW we build). For project requirements and specifications (WHAT we're building), refer to `SPECIFICATION.md`. For testing support, use `AGENTS.md` with the `/test` command.
 
 ## Quick Commands
 
@@ -13,6 +13,27 @@ make lint         # Run linter
 make build        # Build binary
 docker-compose up # Start dependencies (DB, Redis, etc.)
 ```
+
+## Reference Docs
+
+Before implementing features that touch database, APIs, or integrations, check the relevant doc in `docs/`:
+
+| Task | Read First |
+|------|------------|
+| Database migrations, models, queries | `docs/schema/*.md` |
+| API endpoint implementation | `docs/api/*.md` |
+| Payment flows | `docs/integrations/payment.md` |
+| SMS/Email notifications | `docs/integrations/notifications.md` |
+| Auth/JWT implementation | `docs/integrations/auth.md` |
+| Third-party services | `docs/integrations/*.md` |
+| Architecture decisions | `docs/architecture/*.md` |
+| Generated plans | `docs/plans/*.md` |
+
+**Do NOT guess field types, constraints, or API shapes.** The docs have the exact specs from the design document.
+
+The docs/schema/ folder contains one file per table with exact field specs, types, constraints, indexes, and business rules extracted from the design document.
+
+If a doc doesn't exist for what you're implementing, ask before proceeding. If there are very sensible defaults for a table or api then you can use that while asking for confirmation.
 
 ## Project Structure
 
@@ -125,7 +146,7 @@ go test ./internal/payment -run TestSpecificFunction -v
 - Business logic only in service layer
 - Handlers do: parse request, call service, format response — nothing else
 - No domain logic in handlers
-- **Refer to SYSTEM_DESIGN.md for project-specific architectural decisions and business rules**
+- **Refer to SPECIFICATION.md for project requirements and business rules**
 
 ## Error Handling (CRITICAL - BASELINE REQUIREMENT)
 
