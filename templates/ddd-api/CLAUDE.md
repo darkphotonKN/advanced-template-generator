@@ -306,6 +306,21 @@ JWT_SECRET=xxx
 3. Inject via constructor in `config/routes.go`
 4. Write integration tests with real service in test mode
 
+## Skills
+
+This project includes Claude Code skills for a structured development workflow:
+
+| Command | What it does |
+|---------|-------------|
+| `/write-a-prd` | Write a PRD through codebase exploration, submit as GitHub issue |
+| `/prd-to-issues` | Break a PRD into vertical-slice task issues with dependency graph |
+| `/tdd` | Implement a task using RED → GREEN → REFACTOR TDD cycle |
+
+**Recommended workflow:**
+1. `/write-a-prd` — Define the feature as a PRD issue
+2. `/prd-to-issues #N` — Break it into independently-grabbable task issues
+3. `/tdd #N` — Implement each task with test-driven development
+
 ## What NOT To Do
 
 - Don't use `log` package — use `slog`
